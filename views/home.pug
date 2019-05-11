@@ -1,0 +1,15 @@
+//- main.pug를 home 템플릿에 확장하게다는 뜻.
+extends layouts/main   
+include mixins/videoBlock
+
+block content
+    .videos
+        each video in videos
+            +videoBlock({
+                id:video.id,
+                title:video.title,
+                description: video.description,
+                views : video.views,
+                videoFile:video.videoFile
+            })
+    
