@@ -24,6 +24,7 @@ const app= express();  //app object
 //그다음 최정적으로 route에 도달한다.
 app.use(helmet());    //보안을 위한 것. 좋은 습관.
 app.set("view engine", "pug");
+app.use("/uploads", express.static("uploads")) // /uploads 로 가면 'uploads'라는 디렉토리 안으로 파일이 들어간다.
 app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}));
