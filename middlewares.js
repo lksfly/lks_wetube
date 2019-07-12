@@ -11,5 +11,21 @@ export const localsMiddleware = (req, res, next) => {
   next();
 };
 
+export const onlyPublic = (req, res, next) => {
+  if (req.user) {
+    res.redirect(routes.home);
+  } else {
+    next();
+  }
+};
+
+export const onlyPrivate = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.redirect(routes.home);
+  }
+};
+
 //export const uploadVideo
 export const uploadVideo = multerVideo.single("videoFile"); //이 single은 오직 하나의 파일만 업로드 할 수 있는 걸 의미

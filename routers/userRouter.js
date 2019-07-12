@@ -8,18 +8,11 @@ import {
   userDetail,
   changePassword
 } from "../controller/userController"; //자동생성
+import { onlyPrivate } from "../middlewares";
 
 const userRouter = express.Router();
 export default userRouter;
 
-userRouter.get(routes.editProfile, editProfile);
-userRouter.get(routes.changePassword, changePassword);
+userRouter.get(routes.editProfile, onlyPrivate, editProfile);
+userRouter.get(routes.changePassword, onlyPrivate, changePassword);
 userRouter.get(routes.userDetail(), userDetail);
-
-// export const userRouter = express.Router();
-//  //default로 export 하지 않았기때문에 import 할때 다르게 써줘야함.
-
-// //홈에 익명함수 생성  route와 분리하지 않고 안에 바로 만든다.
-// userRouter.get("/",(req, res)=>res.send('user index'))
-// userRouter.get("/edit",(req, res)=>res.send('user deit'))
-// userRouter.get("/password",(req, res)=>res.send('user password'))

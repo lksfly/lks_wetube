@@ -8,7 +8,9 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import passport from "passport";
+import mongoose from "mongoose";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import { localsMiddleware } from "./middlewares";
 import routes from "./routes";
 import userRouter from "./routers/userRouter"; //node.js 모듈과의 다른점.  default로 impor하지 않을 때는 왼쪽과 같은 방식으로 import 해줘야함. userRouter만 import한 것임. default는 app object이고
@@ -18,6 +20,8 @@ import globalRouter from "./routers/globalRouter";
 import "./passport";
 
 const app = express(); //app object
+
+const CookieStore = MongoStore(session);
 
 //미들웨어도 순서대로 실행됨! 현재 5개의 미들웨어 사용, 나중에 더 추가 할 것.
 // 마지막에 morgan이 모든 걸 기록한다!
@@ -34,7 +38,8 @@ app.use(
   session({
     secret: process.env.COOKIE_SECRET,
     resave: true,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: new CookieStore({ mongooseConnection: mongoose.connection })
   })
 );
 app.use(passport.initialize());
