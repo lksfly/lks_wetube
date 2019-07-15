@@ -25,7 +25,7 @@ export const search = async (req, res) => {
     const videos = await Video.find({
       title: { $regex: searchingBy, $options: "i" }
     });
-    console.log(videos);
+    //console.log(videos);
     res.render("search", { pageTitle: "Search", searchingBy, videos }); //searchingBy: searchingBy 인데 searchingBy만 써도 자동적으로 인식.
   } catch (error) {
     console.log(error);
@@ -39,15 +39,17 @@ export const postUpload = async (req, res) => {
     body: { title, description },
     file: { path }
   } = req;
-  //console.log(file);
-  //console.log(path,"hi!!!");
+  // console.log(req.headers);
+  // console.log("---------------------------");
+  // console.log(req.body);
+  // console.log(path,"hi!!!");
   const newVideo = await Video.create({
     fileUrl: path,
     title,
     description
   });
 
-  console.log(newVideo);
+  //console.log(newVideo);
   //To Do : upload and save video
   //사용자가 비디오를 업로드 하면 새로운 비디오 id를 반환받고, 업로드 후에 사용자가 업로드한 비디오의 videoDetail페이지로 리다이렉트 시킨다.
   res.redirect(routes.videoDetail(newVideo.id));

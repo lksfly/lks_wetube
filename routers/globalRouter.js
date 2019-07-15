@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import routes from "../routes";
 import { home, search } from "../controller/videoController";
 import {
@@ -6,9 +7,11 @@ import {
   getJoin,
   postJoin,
   getLogin,
-  postLogin
+  postLogin,
+  githubLogin,
+  postGithubLogIn
 } from "../controller/userController";
-import { onlyPublic } from "../middlewares";
+import { onlyPublic, onlyPrivate } from "../middlewares";
 
 const globalRouter = express.Router();
 export default globalRouter;
@@ -21,6 +24,13 @@ globalRouter.get(routes.home, home); //자동적으로 import 해줌!!
 globalRouter.get(routes.login, onlyPublic, getLogin);
 globalRouter.post(routes.login, onlyPublic, postLogin);
 
-globalRouter.get(routes.logout, logout);
+globalRouter.get(routes.logout, onlyPrivate, logout);
 globalRouter.get(routes.search, search);
+
+globalRouter.get(routes.gitHub, githubLogin);
+globalRouter.get(
+  routes.gitHubCallback,
+  passport.authenticate("github", { failureRedirect: "/login" }),
+  postGithubLogIn
+);
 // globalRouter1.post(routes.search, search);
