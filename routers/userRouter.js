@@ -6,7 +6,8 @@ import routes from "../routes";
 import {
   editProfile,
   userDetail,
-  changePassword
+  changePassword,
+  me
 } from "../controller/userController"; //자동생성
 import { onlyPrivate } from "../middlewares";
 

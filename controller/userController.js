@@ -41,6 +41,7 @@ export const postLogin = passport.authenticate("local", {
   successRedirect: routes.home
 });
 
+//github login
 export const githubLogin = passport.authenticate("github");
 
 export const githubLoginCallback = async (_, __, profile, cb) => {
@@ -52,6 +53,7 @@ export const githubLoginCallback = async (_, __, profile, cb) => {
     const user = await User.findOne({ email });
     if (user) {
       user.githubId = id;
+      user.avatarUrl = avatarUrl;
       user.save();
       return cb(null, user);
     }
@@ -71,13 +73,57 @@ export const githubLoginCallback = async (_, __, profile, cb) => {
 export const postGithubLogIn = (req, res) => {
   res.redirect(routes.home);
 };
+//facebook login
+export const facebookLogin = passport.authenticate("facebook");
+export const facebookLoginCallback = async (_, __, profile, cb) => {
+  console.log(profile);
+  const {
+    _json: { id, name, email }
+  } = profile;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      user.facebookId = id;
+      user.avatarUrl = `https://graph.facebook.com/${id}/picture?type=large`;
+      user.save();
+      return cb(null, user);
+    }
+    const newUser = await User.create({
+      //새유저만든사람은 cb리턴안하고 어떻게 쿠키를 보내ㅣ?
+      email,
+      name,
+      facebookId: id,
+      avatarUrl: `https://graph.facebook.com/${id}/picture?type=large`
+    });
+    return cb(null, newUser);
+  } catch (error) {
+    return cb(error);
+  }
+};
+export const postFacebookLogin = (req, res) => {
+  res.redirect(routes.home);
+};
+
 export const logout = (req, res) => {
   req.logout();
   res.redirect(routes.home);
 };
+export const getMe = (req, res) => {
+  res.render("userDetail", { pageTitle: "User Detail", user: req.user }); //req.user는 현재 로그인 된 사용자이다!
+};
 export const editProfile = (req, res) =>
   res.render("editProfile", { pageTitle: "edit Profile" });
-export const userDetail = (req, res) =>
-  res.render("userDetail", { pageTitle: "user Detail" });
+export const userDetail = async (req, res) => {
+  const {
+    params: { id }
+  } = req;
+  try {
+    const user = await User.findById(id);
+    res.render("userDetail", { pageTitle: "user Detail", user });
+  } catch (error) {
+    res.redirect(routes.home);
+  }
+};
+
 export const changePassword = (req, res) =>
   res.render("changePassword", { pageTitle: "change Password" });
