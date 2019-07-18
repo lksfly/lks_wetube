@@ -1,6 +1,7 @@
 import routes from "../routes";
 //import { videos } from "../db";
 import Video from "../models/Video";
+
 export const home = async (req, res) => {
   //videos:videos -> videos
   try {
@@ -39,15 +40,15 @@ export const postUpload = async (req, res) => {
     body: { title, description },
     file: { path }
   } = req;
-  // console.log(req.headers);
-  // console.log("---------------------------");
-  // console.log(req.body);
-  // console.log(path,"hi!!!");
+
   const newVideo = await Video.create({
     fileUrl: path,
     title,
-    description
+    description,
+    creator: req.user.id
   });
+  req.user.videos.push(newVideo.id); //비디오를 넣는것이아니라 비디오 아이디를 넣는다.
+  req.user.save();
 
   //console.log(newVideo);
   //To Do : upload and save video
@@ -60,11 +61,17 @@ export const videoDetail = async (req, res) => {
     params: { id }
   } = req;
   try {
-    const video = await Video.findById(id);
+    const video = await Video.findById(id).populate("creator"); //.populate() 객체를 데려오는 함수
     //console.log(video);
-    res.render("videoDetail", { pageTitle: video.title, video }); // video : video  == video
+
+    res.render("videoDetail", {
+      pageTitle: video.title,
+
+      video
+    }); // video : video  == video
   } catch (error) {
-    //console.log(error);
+    console.log("1");
+    console.log(error);
     res.redirect(routes.home);
   }
 };
@@ -76,9 +83,20 @@ export const getEditVideo = async (req, res) => {
 
   try {
     const video = await Video.findById(id);
+    console.log(video);
+    console.log(video.creator);
+    console.log(req.user.id);
+    console.log(req.user.id == video.creator);
+    if (video.creator != req.user.id) {
+      console.log("??????");
+      throw Error(); //try 안에서 error를 발생시키면 이건 자동적으로 catch로 가게되어있다.
+    } else {
+      res.render("editVideo", { pageTitle: `Edit ${video.title}`, video });
+    }
     //console.log(video);
-    res.render("editVideo", { pageTitle: `Edit ${video.title}`, video });
   } catch (error) {
+    console.log("2");
+    console.log(error);
     res.redirect(routes.home);
   }
 };
@@ -112,10 +130,17 @@ export const deleteVideo = async (req, res) => {
   } = req;
 
   try {
-    await Video.findOneAndDelete({ _id: id });
-    //res.redirect(routes.home);
-    //const videos = await Video.findById(id);
-  } catch (error) {}
+    const video = await Video.findById(id);
+    if (video.creator != req.user.id) {
+      throw Error();
+    } else {
+      await Video.findOneAndDelete({ _id: id });
+      //res.redirect(routes.home);
+      //const videos = await Video.findById(id);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 
   res.redirect(routes.home); //삭제 성공하든 실패하든 home으로 리다이렉트
 };
