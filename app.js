@@ -16,6 +16,7 @@ import routes from "./routes";
 import userRouter from "./routers/userRouter"; //node.js 모듈과의 다른점.  default로 impor하지 않을 때는 왼쪽과 같은 방식으로 import 해줘야함. userRouter만 import한 것임. default는 app object이고
 import videoRouter from "./routers/videoRouter";
 import globalRouter from "./routers/globalRouter";
+import apiRouter from "./routers/apiRouter";
 
 import "./passport";
 
@@ -47,9 +48,10 @@ app.use(passport.session());
 
 app.use(localsMiddleware);
 
-app.use(routes.home, globalRouter); //글로벌 라우터
+app.use(routes.home, globalRouter);
 app.use(routes.users, userRouter);
 app.use(routes.videos, videoRouter);
+app.use(routes.api, apiRouter);
 
 export default app; //default로 export    // 파일명이 아닌 16번째 줄의 app 오브젝트임!!!
 //누군가 내 파일을 불러올때(import) app object를 주겠다는 의미

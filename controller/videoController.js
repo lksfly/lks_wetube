@@ -1,6 +1,7 @@
 import routes from "../routes";
 //import { videos } from "../db";
 import Video from "../models/Video";
+import Comment from "../models/Comment";
 
 export const home = async (req, res) => {
   //videos:videos -> videos
@@ -61,12 +62,13 @@ export const videoDetail = async (req, res) => {
     params: { id }
   } = req;
   try {
-    const video = await Video.findById(id).populate("creator"); //.populate() 객체를 데려오는 함수
+    const video = await Video.findById(id)
+      .populate("creator")
+      .populate("comments"); //.populate() 객체를 데려오는 함수
     //console.log(video);
-
+    //console.log(video);
     res.render("videoDetail", {
       pageTitle: video.title,
-
       video
     }); // video : video  == video
   } catch (error) {
@@ -145,4 +147,40 @@ export const deleteVideo = async (req, res) => {
   res.redirect(routes.home); //삭제 성공하든 실패하든 home으로 리다이렉트
 };
 
-export const video = (req, res) => res.render("videos");
+export const postRegisterView = async (req, res) => {
+  const {
+    params: { id }
+  } = req;
+  try {
+    const video = await Video.findById(id);
+    video.views += 1;
+    video.save();
+    res.status(200);
+  } catch (error) {
+    res.status(400);
+  } finally {
+    res.end();
+  }
+};
+
+export const postAddComment = async (req, res) => {
+  const {
+    params: { id },
+    body: { comment }, // name 없이 comment어떻게 받아왔지?
+    user
+  } = req;
+  //console.log(comment);
+  try {
+    const video = await Video.findById(id);
+    const newComment = await Comment.create({
+      text: comment,
+      creator: user.id
+    });
+    video.comments.push(newComment.id);
+    video.save();
+  } catch (error) {
+    res.status(400);
+  } finally {
+    res.end();
+  }
+};
